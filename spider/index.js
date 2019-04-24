@@ -2,12 +2,33 @@
 import 'cross-fetch/polyfill';
 import Parser from "rss-parser";
 import {add, list} from "./service";
+import _ from 'lodash';
 
+class Queue<T> {
+    queue: Array<T> = [];
+
+    enqueueAll(feeds: [T]) {
+        feeds.forEach(it => this.enqueue(it))
+    }
+
+    enqueue(feed: T) {
+        if (_.find(this.queue, (it) => it.id === feed.id)) return;
+        this.queue.unshift(feed)
+    }
+
+    dequeue() {
+        return this.queue.pop()
+    }
+}
 const parser = new Parser();
 
 class IArticle {
 }
 
+type TFeed = {
+    id: string
+}
+const queue = new Queue<TFeed>();
 export async function runTask(feedLink, feedId) {
     try {
         const articles = await fetchFeed({}, feedLink);
@@ -32,11 +53,45 @@ export async function fetchFeed({openid, unionid, first, after, last, before}, f
 
 const cron = require('node-cron');
 let running = false;
-let run = function () {
-    !running && list().then(feeds => Promise.all(feeds.map(it => runTask(it.link, it.id)))).then(() => running = false).catch(() => running = false)
+let run = async function () {
+    try {
+        console.log(`${Date().toString()}:running dispatcher`);
+        if (running) return;
+        const feeds = await list();
+        queue.enqueueAll(feeds);
+        console.info(`queue:${JSON.stringify(queue.queue)}`)
+    } catch (e) {
+        console.error(`dispatcher:`, e)
+    }
 };
-run();
-cron.schedule('* */1 * * *', () => {
-    console.log(`${Date().toString()}:running every 1 hour`);
-    run();
+
+async function handle() {
+    try {
+        console.log(`${Date().toString()}:running handler`);
+        const feed = queue.dequeue();
+        if (feed) {
+            console.log(`run:${feed.id},${feed.link}`);
+            runTask(feed.link, feed.id).catch(error => console.log(error))
+        }
+    } catch (e) {
+        console.error(`handler:`, e)
+    }
+}
+
+(async function () {
+    await run();
+    await handle()
+})();
+
+const dispatcher = cron.schedule('0 0 */1 * * * ', () => {
+    run().catch(error => console.error(`dispatcher:`, error))
+}, {scheduled: true});
+const handler = cron.schedule('0 */1 * * * * ', () => {
+    handle().catch(error => console.error(`handler:`, error))
+}, {scheduled: true});
+process.on('SIGINT', function () {
+    console.log('Exit now!');
+    dispatcher.destroy();
+    handler.destroy();
+    process.exit();
 });

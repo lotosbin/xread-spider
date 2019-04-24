@@ -27,7 +27,7 @@ export async function list() {
 }
 
 export async function add({link, title, time, summary, feedId}) {
-    console.log(`add ${JSON.stringify({link, title, time, summary, feedId})}`);
+    console.log(`add ${JSON.stringify({link, title, time, feedId})}`);
     let result = await client.mutate({
         mutation: gql`mutation($title:String,$summary:String,$link:String,$time:String,$feedId:String){
             addArticle(title:$title,summary:$summary,link:$link,time:$time,feedId:$feedId ){
