@@ -20,7 +20,10 @@ class Queue<T> {
         return this.queue.pop()
     }
 }
-const parser = new Parser();
+
+const parser = new Parser({
+    headers: {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'},
+});
 
 class IArticle {
 }
@@ -39,7 +42,7 @@ export async function runTask(feedLink, feedId) {
 }
 
 export async function fetchFeed({openid, unionid, first, after, last, before}, feedUrl): Promise<[IArticle]> {
-    console.log(`getArticles3`);
+    console.log(`fetchFeed`);
     const feed = await parser.parseURL(feedUrl);
     return feed.items.map((it) => ({
         id: it.guid,
