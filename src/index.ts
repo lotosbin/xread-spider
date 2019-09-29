@@ -1,10 +1,9 @@
-// @flow
 import 'cross-fetch/polyfill';
 import Parser from "rss-parser";
 import {add, list} from "./service";
 import _ from 'lodash';
 
-class Queue<T> {
+class Queue<T extends TNode> {
     queue: Array<T> = [];
 
     enqueueAll(feeds: [T]) {
@@ -12,7 +11,7 @@ class Queue<T> {
     }
 
     enqueue(feed: T) {
-        if (_.find(this.queue, (it) => it.id === feed.id)) return;
+        if (_.find(this.queue, (it: TFeed) => it.id === feed.id)) return;
         this.queue.unshift(feed)
     }
 
@@ -21,18 +20,26 @@ class Queue<T> {
     }
 }
 
-const parser = new Parser({
+let options: any = {
     headers: {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'},
-});
+};
+const parser = new Parser(options);
 
 class IArticle {
 }
 
-type TFeed = {
+interface TNode {
     id: string
 }
+
+interface TFeed extends TNode {
+    id: string
+    link: string
+}
+
 const queue = new Queue<TFeed>();
-export async function runTask(feedLink, feedId) {
+
+export async function runTask(feedLink: any, feedId: string) {
     try {
         const articles = await fetchFeed({}, feedLink);
         articles.forEach(article => add({...article, feedId}));
@@ -41,14 +48,14 @@ export async function runTask(feedLink, feedId) {
     }
 }
 
-export async function fetchFeed({openid, unionid, first, after, last, before}, feedUrl): Promise<[IArticle]> {
+export async function fetchFeed({openid, unionid, first, after, last, before}: any, feedUrl: string): Promise<[IArticle]> {
     console.log(`fetchFeed`);
-    const feed = await parser.parseURL(feedUrl);
-    return feed.items.map((it) => ({
+    const feed: any = await parser.parseURL(feedUrl);
+    return feed.items.map((it: { guid: any; link: any; content: any; categories: any; pubDate: any; title: any; }) => ({
         id: it.guid,
         link: it.link,
         summary: it.content,
-        tags: (it.categories || []).map((category) => ({id: "", name: category})),
+        tags: (it.categories || []).map((category: any) => ({id: "", name: category})),
         time: it.pubDate,
         title: it.title,
     }));

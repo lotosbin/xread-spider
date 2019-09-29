@@ -6,8 +6,10 @@
   "license": "MIT",
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
+    "@types/lodash": "^4.14.141",
     "apollo-boost": "^0.1.28",
     "cross-fetch": "^3.0.1",
+    "dotenv": "^8.1.0",
     "graphql": "^14.1.1",
     "graphql-tag": "^2.10.1",
     "lodash": "^4.17.11",
@@ -20,7 +22,7 @@
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.2.2",
     "@babel/node": "7.0.0-beta.40",
-    "@babel/plugin-proposal-class-properties": "^7.3.0",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-proposal-decorators": "^7.3.0",
     "@babel/plugin-proposal-do-expressions": "^7.2.0",
     "@babel/plugin-proposal-export-default-from": "^7.2.0",
@@ -31,6 +33,7 @@
     "@babel/plugin-proposal-logical-assignment-operators": "^7.2.0",
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.2.0",
     "@babel/plugin-proposal-numeric-separator": "^7.2.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
     "@babel/plugin-proposal-optional-chaining": "^7.2.0",
     "@babel/plugin-proposal-pipeline-operator": "^7.3.0",
     "@babel/plugin-proposal-throw-expressions": "^7.2.0",
@@ -39,10 +42,13 @@
     "@babel/preset-env": "^7.3.1",
     "@babel/preset-flow": "^7.0.0",
     "@babel/preset-stage-0": "^7.0.0",
-    "flow-bin": "^0.97.0"
+    "@babel/preset-typescript": "^7.6.0",
+    "@types/request": "^2.48.3"
   },
   "scripts": {
-    "start": "babel-node index.js",
-    "test": "babel-node test.js"
+    "start": "NODE_ENV=production babel-node --extensions '.ts' src/index.ts",
+    "dev": "babel-node --extensions '.ts' src/index.ts",
+    "test": "babel-node src/test.js",
+    "check-types": "tsc"
   }
 }

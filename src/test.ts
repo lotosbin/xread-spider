@@ -10,5 +10,5 @@ import {add, list} from "./service";
 
 list().then(feeds => {
     console.log(JSON.stringify(feeds));
-    list().then(feeds => Promise.all(feeds.map(it => runTask(it.link, it.id))))
+    list().then(feeds => Promise.all(feeds.map((it: { link: any; id: string; }) => runTask(it.link, it.id))))
 });

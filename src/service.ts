@@ -2,13 +2,14 @@ import request from "request";
 import moment from "moment";
 import client from "./apollo/client";
 import gql from "graphql-tag"
+import config from "./config";
 
 function esc(s = "") {
     return s.replace(/"/g, "\\\"").replace(/[\r\n]/, "");
 }
 
 export async function list() {
-    let result = await client.query({
+    let result = await client.query<any>({
         query: gql`
             query Feeds{
                 feeds(last:1000){
@@ -23,10 +24,10 @@ export async function list() {
             }
         `
     });
-    return result.data.feeds.edges.map(it => it.node)
+    return result.data.feeds.edges.map((it: { node: any; }) => it.node)
 }
 
-export async function add({link, title, time, summary, feedId}) {
+export async function add({link, title, time, summary, feedId}: any) {
     console.log(`add ${JSON.stringify({link, title, time, feedId})}`);
     let result = await client.mutate({
         mutation: gql`mutation($title:String,$summary:String,$link:String,$time:String,$feedId:String){
@@ -45,8 +46,8 @@ export async function add({link, title, time, summary, feedId}) {
     console.log(JSON.stringify(result.errors))
 }
 
-export function add0({link, title, id, time, summary, feedId}) {
-    let url = process.env.API_URL;
+export function add0({link, title, id, time, summary, feedId}: any) {
+    let url = config.endpoint;
     request({
         url: url,
         method: 'POST',
@@ -59,7 +60,7 @@ export function add0({link, title, id, time, summary, feedId}) {
                     }
                     `
         }
-    }, (error, response, body) => {
+    }, (error: { message: any; }, response: any, body: any) => {
         if (error) {
             console.error(error.message);
             return;
