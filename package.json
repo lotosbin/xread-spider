@@ -8,7 +8,7 @@
     "@babel/polyfill": "^7.2.5",
     "@types/lodash": "^4.14.141",
     "apollo-boost": "^0.1.28",
-    "cross-fetch": "^3.0.1",
+    "cross-fetch": "^3.1.5",
     "dotenv": "^8.1.0",
     "graphql": "^14.1.1",
     "graphql-tag": "^2.10.1",
